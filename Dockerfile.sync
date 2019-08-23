@@ -1,0 +1,12 @@
+FROM        python:3
+
+ENV         DIR=/sync
+
+WORKDIR     ${DIR}
+
+COPY        requirements.txt requirements.txt
+RUN         pip install --no-cache-dir --upgrade pip -r requirements.txt
+
+COPY        . ${DIR}
+
+CMD         ["python", "simple-sync.py"]

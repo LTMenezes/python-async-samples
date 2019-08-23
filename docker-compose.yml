@@ -1,0 +1,19 @@
+version: '2'
+services:
+  flask-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.sync
+    env_file:
+      - config.env
+    ports:
+      - 5051:5000
+  sanic-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.async
+    env_file:
+      - config.env
+    ports:
+      - 5052:5000
+
