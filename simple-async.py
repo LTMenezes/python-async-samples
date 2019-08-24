@@ -8,12 +8,13 @@ pool = None
 
 @app.route('/')
 async def count(request):
+    global pool
     if pool is None:
         pool = await asyncpg.create_pool(os.getenv('CN_STRING'))
 
-    conn = pool.acquire()
+    conn = await pool.acquire()
     result = await conn.fetchrow("SELECT * FROM pgbench_accounts LIMIT 1")
-    await pool.release()
+    await pool.release(conn)
     return  json({'count': str(result[0])})
 
 
