@@ -1,16 +1,19 @@
 from flask import Flask, jsonify
-import psycopg2
+from psycopg2.pool import SimpleConnectionPool
 import os
 
 app = Flask(__name__)
-
+pool = SimpleConnectionPool(3, 20, os.getenv('CNN_STRING'))
 
 @app.route('/')
 def count():
-    conn = psycopg2.connect(os.getenv('CNN_STRING'))
+    conn = pool.getconn()
     cursor = conn.cursor()
-    cursor.execute('SELECT COUNT(*) FROM pgbench_accounts')
-    return jsonify({'count': str(cursor.fetchone()[0])})
+    cursor.execute('SELECT * FROM pgbench_accounts LIMIT 1')
+    result = str(cursor.fetchone()[0])
+    cursor.close()
+    pool.putconn(conn)
+    return jsonify({'count': result})
 
 
 if __name__ == '__main__':

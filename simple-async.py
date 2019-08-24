@@ -4,12 +4,16 @@ import asyncpg
 import os
 
 app = Sanic()
-
+pool = None
 
 @app.route('/')
 async def count(request):
-    conn = await asyncpg.connect(os.getenv('CN_STRING'))
-    result = await conn.fetchrow("SELECT COUNT(*) FROM pgbench_accounts")
+    if pool is None:
+        pool = await asyncpg.create_pool(os.getenv('CN_STRING'))
+
+    conn = pool.acquire()
+    result = await conn.fetchrow("SELECT * FROM pgbench_accounts LIMIT 1")
+    await pool.release()
     return  json({'count': str(result[0])})
 
 
